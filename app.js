@@ -25,10 +25,22 @@ server.post('/api/messages', connector.listen());
 
 const firstChoices = {
     "いいランチのお店": {
-        value: 0
+        value: 'lunch',
+        title: '行列のできるタイ料理屋',
+        subtitle: 'ランチセットがコスパ良し',
+        text: '品川駅から徒歩10分くらいのところにあるタイ料理屋。トムヤムクンヌードルがおすすめ。',
+        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483008/a88a897a-4225-11e7-84a2-3bfaeb851713.jpg',
+        buttons: '予約する',
+        url: 'http://example.com/'
     },
     "飲めるところ": {
-        value: 1
+        value: 'drink',
+        title: '落ち着いた個室居酒屋',
+        subtitle: 'なんでも美味しいが、特に焼き鳥がおすすめ',
+        text: '品川駅から徒歩5分くらいの路地裏にひっそりある。',
+        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483007/a62eb61a-4225-11e7-8e8c-5db98f35744f.jpg',
+        buttons: '予約する',
+        url: 'http://example.com/'
     }
 };
 
@@ -39,6 +51,22 @@ bot.dialog('/firstQuestion', [
     (session, results) => {
         console.log(results.response);
         session.send('%sですね。', results.response.entity);
+        session.send('こちらはいかがでしょうか。');
+
+        const choice = firstChoices[results.response.entity];
+
+        var card = new builder.HeroCard(session)
+            .title(choice.title)
+            .subtitle(choice.subtitle)
+            .text(choice.text)
+            .images([
+                builder.CardImage.create(session, choice.imageURL)
+            ])
+            .buttons([
+                builder.CardAction.openUrl(session, choice.url, '予約する')
+            ]);
+        var msg = new builder.Message(session).addAttachment(card);
+        session.send(msg);
         session.endDialog();
     }
 ]);
