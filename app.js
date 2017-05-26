@@ -35,11 +35,11 @@ const firstChoices = {
     },
     "飲めるところ": {
         value: 'drink',
-        title: '落ち着いた個室居酒屋',
+        title: '落ち着いた雰囲気の個室居酒屋',
         subtitle: 'なんでも美味しいが、特に焼き鳥がおすすめ',
         text: '品川駅から徒歩5分くらいの路地裏にひっそりある。',
         imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483007/a62eb61a-4225-11e7-8e8c-5db98f35744f.jpg',
-        buttons: '予約する',
+        button: '予約する',
         url: 'http://example.com/'
     }
 };
@@ -55,7 +55,7 @@ bot.dialog('/firstQuestion', [
 
         const choice = firstChoices[results.response.entity];
 
-        var card = new builder.HeroCard(session)
+        const card = new builder.HeroCard(session)
             .title(choice.title)
             .subtitle(choice.subtitle)
             .text(choice.text)
@@ -63,9 +63,10 @@ bot.dialog('/firstQuestion', [
                 builder.CardImage.create(session, choice.imageURL)
             ])
             .buttons([
-                builder.CardAction.openUrl(session, choice.url, '予約する')
+                builder.CardAction.openUrl(session, choice.url, choice.button)
             ]);
-        var msg = new builder.Message(session).addAttachment(card);
+
+        const msg = new builder.Message(session).addAttachment(card);
         session.send(msg);
         session.endDialog();
     }
