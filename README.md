@@ -1,8 +1,9 @@
 # Bot Framework サンプル
 
-* Node.js版のBot Frameworkを使用したサンプルアプリです。
-* リッチカード等も使用しています。
-* [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator)をダウンロードしてお使いください。
+* Node.js版のBot Frameworkを使用したサンプルアプリです
+* botから話しかけます
+* リッチカード等も使用しています
+* [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator)をダウンロードしてお使いください
 
 ## 使い方
 
