@@ -4,6 +4,7 @@
 * botから話しかけます
 * リッチカード等も使用しています
 * [Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator)をダウンロードしてお使いください
+* Bot Frameworkのドキュメントは[こちら](https://docs.microsoft.com/en-us/bot-framework/)
 
 ## 使い方
 
