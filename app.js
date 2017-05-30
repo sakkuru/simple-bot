@@ -26,8 +26,13 @@ server.on('connection', a => {
 
 const sayHello = (req, res, next) => {
     if (req.body.type !== 'conversationUpdate') {
+        console.log("not conversationUpdate, next")
         next();
+        return;
     }
+
+    console.log("req.body", req.body);
+
     if (req.body.membersAdded && req.body.membersAdded[0].name === 'Bot') {
         return;
     }
@@ -40,6 +45,7 @@ const sayHello = (req, res, next) => {
         user: { id: 'default-user', name: 'User' },
         bot: { id: '00000', name: 'Bot' }
     };
+    console.log("address", address);
 
     const msg = new builder.Message().address(address);
     msg.text('こんにちは！\nボットがお答えします。');
