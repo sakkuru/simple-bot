@@ -1,14 +1,16 @@
-const restify = require('restify');
 const builder = require('botbuilder');
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
+app.use(bodyParser.json());
 
 //=========================================================
 // Bot Setup
 //=========================================================
 
-// Setup Restify Server
-const server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, () => {
-    console.log('%s listening to %s', server.name, server.url);
+const port = process.env.port || process.env.PORT || 3000;
+const server = app.listen(port, () => {
+    console.log('bot is listening on port %s', port);
 });
 
 // Create chat bot
@@ -17,7 +19,39 @@ const connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 const bot = new builder.UniversalBot(connector);
-server.post('/api/messages', connector.listen());
+
+server.on('connection', a => {
+    console.log("connection!");
+});
+
+const sayHello = (req, res, next) => {
+    if (req.body.type !== 'conversationUpdate') {
+        next();
+    }
+    if (req.body.membersAdded && req.body.membersAdded[0].name === 'Bot') {
+        return;
+    }
+
+    const address = {
+        id: req.body.id,
+        channelId: req.body.channelId,
+        conversation: req.body.conversation,
+        serviceUrl: req.body.serviceUrl,
+        user: { id: 'default-user', name: 'User' },
+        bot: { id: '00000', name: 'Bot' }
+    };
+
+    const msg = new builder.Message().address(address);
+    msg.text('こんにちは！\nボットがお答えします。');
+    bot.send(msg);
+    bot.beginDialog(address, "/firstQuestion");
+};
+
+app.post('/api/messages', sayHello, connector.listen());
+
+bot.on('conversationUpdate', a => {
+    console.log('conversationUpdate!!!!!!!!!')
+});
 
 //=========================================================
 // Bots Dialogs
@@ -48,8 +82,7 @@ bot.dialog('/firstQuestion', [
     session => {
         builder.Prompts.choice(session, "何をお探しですか。", firstChoices, { listStyle: 3 });
     },
-    (session, results) => {
-        console.log(results.response);
+    (session, results, next) => {
         session.send('%sですね。', results.response.entity);
         session.send('こちらはいかがでしょうか。');
 
@@ -68,7 +101,24 @@ bot.dialog('/firstQuestion', [
 
         const msg = new builder.Message(session).addAttachment(card);
         session.send(msg);
-        session.endDialog();
+        session.beginDialog('/endDialog');
+    }
+]);
+
+bot.dialog('/endDialog', [
+    session => {
+        builder.Prompts.confirm(session, "疑問は解決しましたか？", { listStyle: 3 });
+    },
+    (session, results) => {
+        console.log(results.response);
+        if (results.response) {
+            session.send('ありがとうございました。');
+            session.endDialog();
+
+        } else {
+            session.send('お役に立てず申し訳ありません。');
+            session.beginDialog('/firstQuestion');
+        }
     }
 ]);
 
@@ -76,8 +126,5 @@ bot.dialog('/', [
     session => {
         session.send("ボットが自動でお答えします。");
         session.beginDialog('/firstQuestion');
-    },
-    //   function(session, results) {
-    //     session.beginDialog('/secondQuestion');
-    //   }
+    }
 ]);
