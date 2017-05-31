@@ -18,15 +18,14 @@ const connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
+
 const bot = new builder.UniversalBot(connector);
 
-server.on('connection', a => {
-    console.log("connection!");
-});
+server.on('connection', a => {});
 
 const sayHello = (req, res, next) => {
     if (req.body.type !== 'conversationUpdate') {
-        console.log("not conversationUpdate, next")
+        console.log('not conversationUpdate')
         next();
         return;
     }
@@ -54,10 +53,6 @@ const sayHello = (req, res, next) => {
 };
 
 app.post('/api/messages', sayHello, connector.listen());
-
-bot.on('conversationUpdate', a => {
-    console.log('conversationUpdate!!!!!!!!!')
-});
 
 //=========================================================
 // Bots Dialogs
