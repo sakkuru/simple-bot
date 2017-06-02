@@ -44,7 +44,7 @@ const firstChoices = {
         subtitle: 'ランチセットがコスパ良し',
         text: '品川駅から徒歩10分くらいのところにあるタイ料理屋。トムヤムクンヌードルがおすすめ。',
         imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483008/a88a897a-4225-11e7-84a2-3bfaeb851713.jpg',
-        buttons: '予約する',
+        button: '予約する',
         url: 'http://example.com/'
     },
     "飲めるところ": {
