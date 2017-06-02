@@ -21,38 +21,17 @@ const connector = new builder.ChatConnector({
 
 const bot = new builder.UniversalBot(connector);
 
-server.on('connection', a => {});
-
-const sayHello = (req, res, next) => {
-    if (req.body.type !== 'conversationUpdate') {
-        console.log('not conversationUpdate')
-        next();
-        return;
+bot.on('conversationUpdate', message => {
+    if (message.membersAdded) {
+        message.membersAdded.forEach(identity => {
+            if (identity.id === message.address.bot.id) {
+                bot.beginDialog(message.address, '/begin');
+            }
+        });
     }
+});
 
-    console.log("req.body", req.body);
-
-    if (req.body.membersAdded && req.body.membersAdded[0].name === 'Bot') {
-        return;
-    }
-
-    const address = {
-        id: req.body.id,
-        channelId: req.body.channelId,
-        conversation: req.body.conversation,
-        serviceUrl: req.body.serviceUrl,
-        user: { id: 'default-user', name: 'User' },
-        bot: { id: '00000', name: 'Bot' }
-    };
-    console.log("address", address);
-
-    const msg = new builder.Message().address(address);
-    msg.text('こんにちは！\nボットがお答えします。');
-    bot.send(msg);
-    bot.beginDialog(address, "/firstQuestion");
-};
-
-app.post('/api/messages', sayHello, connector.listen());
+app.post('/api/messages', connector.listen());
 
 //=========================================================
 // Bots Dialogs
@@ -123,7 +102,7 @@ bot.dialog('/endDialog', [
     }
 ]);
 
-bot.dialog('/', [
+bot.dialog('/begin', [
     session => {
         session.send("ボットが自動でお答えします。");
         session.beginDialog('/firstQuestion');
