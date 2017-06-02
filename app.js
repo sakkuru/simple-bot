@@ -18,46 +18,20 @@ const connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
+
 const bot = new builder.UniversalBot(connector);
 
-server.on('connection', a => {
-    console.log("connection!");
+bot.on('conversationUpdate', message => {
+    if (message.membersAdded) {
+        message.membersAdded.forEach(identity => {
+            if (identity.id === message.address.bot.id) {
+                bot.beginDialog(message.address, '/begin');
+            }
+        });
+    }
 });
 
-const sayHello = (req, res, next) => {
-    if (req.body.type !== 'conversationUpdate') {
-        console.log("not conversationUpdate, next")
-        next();
-        return;
-    }
-
-    console.log("req.body", req.body);
-
-    if (req.body.membersAdded && req.body.membersAdded[0].name === 'Bot') {
-        return;
-    }
-
-    const address = {
-        id: req.body.id,
-        channelId: req.body.channelId,
-        conversation: req.body.conversation,
-        serviceUrl: req.body.serviceUrl,
-        user: { id: 'default-user', name: 'User' },
-        bot: { id: '00000', name: 'Bot' }
-    };
-    console.log("address", address);
-
-    const msg = new builder.Message().address(address);
-    msg.text('こんにちは！\nボットがお答えします。');
-    bot.send(msg);
-    bot.beginDialog(address, "/firstQuestion");
-};
-
-app.post('/api/messages', sayHello, connector.listen());
-
-bot.on('conversationUpdate', a => {
-    console.log('conversationUpdate!!!!!!!!!')
-});
+app.post('/api/messages', connector.listen());
 
 //=========================================================
 // Bots Dialogs
@@ -70,7 +44,7 @@ const firstChoices = {
         subtitle: 'ランチセットがコスパ良し',
         text: '品川駅から徒歩10分くらいのところにあるタイ料理屋。トムヤムクンヌードルがおすすめ。',
         imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483008/a88a897a-4225-11e7-84a2-3bfaeb851713.jpg',
-        buttons: '予約する',
+        button: '予約する',
         url: 'http://example.com/'
     },
     "飲めるところ": {
@@ -128,7 +102,7 @@ bot.dialog('/endDialog', [
     }
 ]);
 
-bot.dialog('/', [
+bot.dialog('/begin', [
     session => {
         session.send("ボットが自動でお答えします。");
         session.beginDialog('/firstQuestion');
