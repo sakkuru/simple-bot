@@ -25,7 +25,7 @@ bot.on('conversationUpdate', message => {
     if (message.membersAdded) {
         message.membersAdded.forEach(identity => {
             if (identity.id === message.address.bot.id) {
-                bot.beginDialog(message.address, '/begin');
+                bot.beginDialog(message.address, '/');
             }
         });
     }
@@ -59,7 +59,7 @@ const firstChoices = {
 };
 
 bot.dialog('/firstQuestion', [
-    session => {
+    (session, results, next) => {
         builder.Prompts.choice(session, "何をお探しですか。", firstChoices, { listStyle: 3 });
     },
     (session, results, next) => {
@@ -102,7 +102,7 @@ bot.dialog('/endDialog', [
     }
 ]);
 
-bot.dialog('/begin', [
+bot.dialog('/', [
     session => {
         session.send("ボットが自動でお答えします。");
         session.beginDialog('/firstQuestion');
