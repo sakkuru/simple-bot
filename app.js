@@ -43,7 +43,7 @@ const firstChoices = {
         title: '行列のできるタイ料理屋',
         subtitle: 'ランチセットがコスパ良し',
         text: '品川駅から徒歩10分くらいのところにあるタイ料理屋。トムヤムクンヌードルがおすすめ。',
-        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483008/a88a897a-4225-11e7-84a2-3bfaeb851713.jpg',
+        imageURL: 'https://sakkuru.github.io/simple-bot-nodejs/images/tom.jpg',
         button: '予約する',
         url: 'http://example.com/'
     },
@@ -52,7 +52,7 @@ const firstChoices = {
         title: '落ち着いた雰囲気の個室居酒屋',
         subtitle: 'なんでも美味しいが、特に焼き鳥がおすすめ',
         text: '品川駅から徒歩5分くらいの路地裏にひっそりある。',
-        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483007/a62eb61a-4225-11e7-8e8c-5db98f35744f.jpg',
+        imageURL: 'https://sakkuru.github.io/simple-bot-nodejs/images/yaki.jpg',
         button: '予約する',
         url: 'http://example.com/'
     }
