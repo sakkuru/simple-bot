@@ -1,8 +1,6 @@
 const builder = require('botbuilder');
-const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
-app.use(bodyParser.json());
 
 //=========================================================
 // Bot Setup
@@ -21,6 +19,13 @@ const connector = new builder.ChatConnector({
 
 const bot = new builder.UniversalBot(connector);
 
+app.post('/api/messages', connector.listen());
+
+//=========================================================
+// Bots Dialogs
+//=========================================================
+
+// When user joins, it begin dialog
 bot.on('conversationUpdate', message => {
     if (message.membersAdded) {
         message.membersAdded.forEach(identity => {
@@ -30,12 +35,6 @@ bot.on('conversationUpdate', message => {
         });
     }
 });
-
-app.post('/api/messages', connector.listen());
-
-//=========================================================
-// Bots Dialogs
-//=========================================================
 
 const firstChoices = {
     "いいランチのお店": {
