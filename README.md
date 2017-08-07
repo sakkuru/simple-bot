@@ -27,10 +27,15 @@ node app.js
 
 ## コードの解説
 
+### 会話
 * ```session.beginDialog('/dialogName');``` で会話(dialog)の開始
-* 各dialog内は、Promptでユーザに入力をさせ、それを受け取って処理、というのの繰り返し
+* 基本各dialog内は、Promptでユーザに入力をさせ、それを受け取って処理、というのの繰り返し
+* このサンプルコードでは、下記の順番でdialogを呼んでいる
+  * [/](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L33)
+  * [/firstQuestion](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L107)
+  * [/endDialog](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L83)
 
-### botから話しかけるコード
+### botから話しかける
 * [29-37行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L29-L37)
 * ユーザがチャットできる状態になると```conversationUpdate``` というイベントが発生するので、そこからdialogを開始する
 
