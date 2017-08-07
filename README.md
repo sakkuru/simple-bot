@@ -25,4 +25,24 @@ node app.js
 
 * endpoint URLに`http://localhost:3000/api/messages`と入力し、Connectをクリックします。
 
+## コードの解説
 
+* ```session.beginDialog('/dialogName');``` で会話(dialog)の開始
+* 各dialog内は、Promptでユーザに入力をさせ、それを受け取って処理、というのの繰り返し
+
+### botから話しかけるコード
+* [29-37行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L29-L37)
+* ユーザがチャットできる状態になると```conversationUpdate``` というイベントが発生するので、そこからdialogを開始する
+
+### ボタン
+* [ボタンの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L62)
+* [ボタンの中のテキストの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L39-L58)
+
+### カード
+
+* [カードの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L70-L82)
+
+### yes/noで疑問が解決したか確認
+
+* [87-102行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L87-L102)
+* Noの場合、最初の質問(firstQuestion)へ戻っている
