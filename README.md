@@ -51,3 +51,8 @@ node app.js
 
 * [87-102行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L87-L102)
 * Noの場合、最初の質問(firstQuestion)へ戻っている
+
+## 他のサンプルコード
+
+* [Payment Request APIを使うbotのサンプル](https://github.com/sakkuru/payment-with-bot)
+* [Text AnalyticsとAzure Searchを使うbotのサンプル](https://github.com/sakkuru/bot-using-azure-search)
