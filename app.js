@@ -26,7 +26,7 @@ app.post('/api/messages', connector.listen());
 // Bots Dialogs
 //=========================================================
 
-// When user joins, it begin dialog
+// When user joins, it begin Greeting dialog
 bot.on('conversationUpdate', message => {
     if (message.membersAdded) {
         message.membersAdded.forEach(identity => {
@@ -154,3 +154,25 @@ bot.dialog('EndDialog', [
         }
     }
 ]);
+
+// help command
+bot.customAction({
+    matches: /^help$/i,
+    onSelectAction: (session, args, next) => {
+        const helpTexts = [
+            'help: このヘルプメニュー。前のdialogは続いています。',
+            'exit: dialogを終わらせ、 最初に戻ります。',
+        ]
+        session.send(helpTexts.join('\n\n'));
+    }
+});
+
+// exit command
+bot.dialog('Exit', [
+    session => {
+        session.endDialog("スタックを消去して終了します。");
+        session.beginDialog('FirstQuestion');
+    },
+]).triggerAction({
+    matches: /^exit$/i
+});
