@@ -3,8 +3,9 @@
 ![](https://cloud.githubusercontent.com/assets/2181352/26581348/066a085a-4577-11e7-8aa9-0b5e527ca56f.png)
 * Node.js版のBot Frameworkを使用したサンプルアプリです
 * botから話しかけてきます
-* リッチカードを使用しています
+* `help`や`exit`コマンドが使用できます
 * 自由入力を受け付け、LUISを呼び出します
+* リッチカードを使用しています
 * ローカルで動かす際は、[Bot Framework Emulator](https://github.com/Microsoft/BotFramework-Emulator)をダウンロードしてお使いください
 * Bot Frameworkのドキュメントは[こちら](https://docs.microsoft.com/en-us/bot-framework/)
 
@@ -46,6 +47,16 @@ LUIS_ENDPOINT=[LUIS_ENDPOINT] SUBSCRIOTION_KEY=[SUBSCRIOTION_KEY] node app.js
 ### botから話しかける
 * [29-37行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L29-L38)
 * ユーザがチャットできる状態になると```conversationUpdate``` というイベントが発生するので、そこからdialogを開始している
+
+### helpコマンド
+* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L158-L168)
+* `customAction`はスタックが保持されるので、コマンド終了後は元のdialogに戻る
+* ユーザの入力が`matches: /^help$/i,`にマッチしたら、`onSelectAction`が実行される
+
+### exitコマンド
+* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L170-L178)
+* `triggerAction`はdialogスタックは消去される
+* ユーザの入力が`matches: /^exit$/i`にマッチしたら、dialogが実行される
 
 ### ボタンの表示
 * [ボタンの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L73)
