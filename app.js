@@ -56,6 +56,9 @@ const firstChoices = {
         button: '予約する',
         url: 'http://example.com/'
     },
+    "画像認識": {
+        value: 'imageRecognition'
+    },
     "その他": {
         value: 'others'
     }
@@ -77,6 +80,9 @@ bot.dialog('FirstQuestion', [
 
         if (choice.value === 'others') {
             session.beginDialog('GetFreeText');
+            return;
+        } else if (choice.value === 'imageRecognition') {
+            session.beginDialog('ImageRecognition');
             return;
         }
 
@@ -135,6 +141,56 @@ bot.dialog('GetFreeText', [
         const res = getLuis(results.response).then(res => {
             console.log('res', res);
             // process LUIS response
+        });
+    }
+]);
+
+const getCognitiveResults = imageURL => {
+    return new Promise((resolve, reject) => {
+        const apiEndpoint = process.env.COMPUTER_VISION_ENDPOINT || 'https://southeastasia.api.cognitive.microsoft.com/vision/v1.0/analyze';
+
+        const params = {
+            'subscription-key': process.env.SUBSCRIPTION_KEY || '63e0ffd9f8d343e1b229793d1bf8c54d',
+            'visualFeatures': 'Description',
+        };
+
+        const options = {
+            url: apiEndpoint,
+            qs: params,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/octet-stream'
+            },
+            body: request.get(imageURL),
+            // encoding: null
+        };
+
+        request.post(options, (error, response, body) => {
+            if (error) {
+                console.log('Image Recognition Error: ', error);
+            } else {
+                resolve(JSON.parse(body));
+            }
+        });
+    });
+}
+
+bot.dialog('ImageRecognition', [
+    session => {
+        builder.Prompts.attachment(session, '画像をアップロードしてください。（複数可）');
+    },
+    (session, results) => {
+        const promises = [];
+        results.response.forEach(content => {
+            if (content.contentType.match('image')) {
+                promises.push(getCognitiveResults(content.contentUrl));
+            }
+        });
+
+        Promise.all(promises).then(imageDescs => {
+            imageDescs.forEach(res => {
+                session.send(res.description.captions[0].text);
+            });
         });
     }
 ]);
