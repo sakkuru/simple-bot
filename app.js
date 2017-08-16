@@ -22,6 +22,10 @@ const bot = new builder.UniversalBot(connector);
 
 app.post('/api/messages', connector.listen());
 
+app.get('/', (req, res) => {
+    res.send(`Bot is running on port ${port}!\n`);
+});
+
 //=========================================================
 // Bots Dialogs
 //=========================================================
