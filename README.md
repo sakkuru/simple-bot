@@ -49,36 +49,36 @@ LUIS_ENDPOINT=[LUIS_ENDPOINT] SUBSCRIOTION_KEY=[SUBSCRIOTION_KEY] node app.js
   * EndDialog
 
 ### botから話しかける
-* [29-37行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L29-L38)
+* [botから話しかける](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L33-L42)
 * ユーザがチャットできる状態になると```conversationUpdate``` というイベントが発生するので、そこからdialogを開始している
 
 ### helpコマンド
-* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L214-L224)
+* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L219-L228)
 * `customAction`はスタックが保持されるので、コマンド終了後は元のdialogに戻る
 * ユーザの入力が`matches: /^help$/i,`にマッチしたら、`onSelectAction`が実行される
 
 ### exitコマンド
-* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L226-L234)
+* [コマンドの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L231-L238)
 * `triggerAction`はdialogスタックは消去される
 * ユーザの入力が`matches: /^exit$/i`にマッチしたら、dialogが実行される
 
 ### 画像認識
-* [画像のアップロードをさせる](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L180)
-* [Computer Vision APIに投げる](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L150-L174)
+* [画像のアップロードをさせる](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L184)
+* [Computer Vision APIに投げる](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L154-L178)
 
 ### ボタンの表示
-* [ボタンの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L76)
-* [ボタンの中のテキストの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L40-L65)
+* [ボタンの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L80)
+* [ボタンの中のテキストの定義](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L44-L69)
 
 ### リッチカードの表示
-* [カードの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L91-L103)
+* [カードの表示](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L95-L107)
 
 ### 自由入力と意図の解釈
-* [自由入力の受付](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L137)
-* [LUISの呼び出し](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L110-L131)
+* [自由入力の受付](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L141)
+* [LUISの呼び出し](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L114-L135)
 
 ### yes/noで疑問が解決したか確認
-* [87-102行目あたり](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L198-L212)
+* [確認dialog](https://github.com/sakkuru/simple-bot-nodejs/blob/master/app.js#L202-L216)
 * Noの場合、最初の質問(firstQuestion)へ戻っている
 
 ## 他のサンプルコード
