@@ -83,6 +83,13 @@ const firstChoices = {
     }
 };
 
+// default first dialog
+bot.dialog('/', [
+    session => {
+        session.beginDialog('Greeting');
+    }
+]);
+
 bot.dialog('Greeting', [
     session => {
         session.send("こんにちは。\n\nボットが自動でお答えします。");
