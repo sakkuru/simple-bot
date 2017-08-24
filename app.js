@@ -1,7 +1,14 @@
 const builder = require('botbuilder');
 const express = require('express');
 const request = require('request');
+const bodyParser = require('body-parser');
 const app = express();
+
+const Util = require('./Util');
+const util = new Util();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //=========================================================
 // Bot Setup
@@ -19,6 +26,14 @@ const connector = new builder.ChatConnector({
 });
 
 const bot = new builder.UniversalBot(connector);
+
+// for getting all user input
+app.all('/api/messages', function(req, res, next) {
+    if (req.body.type === 'message' && req.body.text) {
+        util.storeUserInput(req.body);
+    }
+    next();
+});
 
 app.post('/api/messages', connector.listen());
 
@@ -109,75 +124,18 @@ bot.dialog('FirstQuestion', [
     }
 ]);
 
-const getLuis = (text) => {
-    return new Promise((resolve, reject) => {
-        const luisURL = process.env.LUIS_ENDPOINT;
-
-        const params = {
-            'subscription-key': process.env.SUBSCRIOTION_KEY,
-            'timezoneOffset': 540,
-            'verbose': true,
-            q: text
-        };
-
-        const options = {
-            url: luisURL,
-            headers: {
-                'Accept': 'application/json',
-            },
-            qs: params
-        };
-
-        request.get(options, (err, response, body) => {
-            if (err) { console.log(err); return; }
-            const res = JSON.parse(response.body);
-            resolve(res);
-        });
-    });
-}
-
 bot.dialog('GetFreeText', [
     session => {
         builder.Prompts.text(session, "自由に入力してください。");
     },
     (session, results) => {
         console.log(results.response);
-        const res = getLuis(results.response).then(res => {
+        const res = util.getLuis(results.response).then(res => {
             console.log('res', res);
             // process LUIS response
         });
     }
 ]);
-
-const getCognitiveResults = imageURL => {
-    return new Promise((resolve, reject) => {
-        const apiEndpoint = process.env.COMPUTER_VISION_ENDPOINT || 'https://southeastasia.api.cognitive.microsoft.com/vision/v1.0/analyze';
-
-        const params = {
-            'subscription-key': process.env.SUBSCRIPTION_KEY || '63e0ffd9f8d343e1b229793d1bf8c54d',
-            'visualFeatures': 'Description',
-        };
-
-        const options = {
-            url: apiEndpoint,
-            qs: params,
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/octet-stream'
-            },
-            body: request.get(imageURL),
-            // encoding: null
-        };
-
-        request.post(options, (error, response, body) => {
-            if (error) {
-                console.log('Image Recognition Error: ', error);
-            } else {
-                resolve(JSON.parse(body));
-            }
-        });
-    });
-}
 
 bot.dialog('ImageRecognition', [
     session => {
@@ -187,7 +145,7 @@ bot.dialog('ImageRecognition', [
         const promises = [];
         results.response.forEach(content => {
             if (content.contentType.match('image')) {
-                promises.push(getCognitiveResults(content.contentUrl));
+                promises.push(util.getCognitiveResults(content.contentUrl));
             }
         });
 
