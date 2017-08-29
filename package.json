@@ -1,20 +1,20 @@
 {
-    "name": "simple-bot-nodejs",
-    "version": "1.0.0",
-    "description": "This is sample bot code using Bot Framework in Node.js.",
-    "main": "app.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/sakkuru/simple-bot-nodejs.git"
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "body-parser": "^1.17.2",
-        "botbuilder": "^3.7.0",
-        "express": "^4.15.3"
-    }
+  "name": "simple-bot-nodejs",
+  "version": "1.0.0",
+  "description": "This is sample bot code using Bot Framework in Node.js.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakkuru/simple-bot-nodejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "botbuilder": "^3.7.0",
+    "express": "^4.15.3"
+  }
 }

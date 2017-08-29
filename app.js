@@ -1,7 +1,13 @@
 const builder = require('botbuilder');
-const bodyParser = require('body-parser');
 const express = require('express');
+const request = require('request');
+const bodyParser = require('body-parser');
 const app = express();
+
+const Util = require('./Util');
+const util = new Util();
+
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //=========================================================
@@ -21,21 +27,34 @@ const connector = new builder.ChatConnector({
 
 const bot = new builder.UniversalBot(connector);
 
-bot.on('conversationUpdate', message => {
-    if (message.membersAdded) {
-        message.membersAdded.forEach(identity => {
-            if (identity.id === message.address.bot.id) {
-                bot.beginDialog(message.address, '/begin');
-            }
-        });
+// for getting all user input
+app.all('/api/messages', function(req, res, next) {
+    if (req.body.type === 'message' && req.body.text) {
+        util.storeUserInput(req.body);
     }
+    next();
 });
 
 app.post('/api/messages', connector.listen());
 
+app.get('/', (req, res) => {
+    res.send(`Bot is running on port ${port}!\n`);
+});
+
 //=========================================================
 // Bots Dialogs
 //=========================================================
+
+// When user joins, it begin Greeting dialog
+bot.on('conversationUpdate', message => {
+    if (message.membersAdded) {
+        message.membersAdded.forEach(identity => {
+            if (identity.id === message.address.bot.id) {
+                bot.beginDialog(message.address, 'Greeting');
+            }
+        });
+    }
+});
 
 const firstChoices = {
     "いいランチのお店": {
@@ -43,7 +62,7 @@ const firstChoices = {
         title: '行列のできるタイ料理屋',
         subtitle: 'ランチセットがコスパ良し',
         text: '品川駅から徒歩10分くらいのところにあるタイ料理屋。トムヤムクンヌードルがおすすめ。',
-        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483008/a88a897a-4225-11e7-84a2-3bfaeb851713.jpg',
+        imageURL: 'https://sakkuru.github.io/simple-bot-nodejs/images/tom.jpg',
         button: '予約する',
         url: 'http://example.com/'
     },
@@ -52,21 +71,48 @@ const firstChoices = {
         title: '落ち着いた雰囲気の個室居酒屋',
         subtitle: 'なんでも美味しいが、特に焼き鳥がおすすめ',
         text: '品川駅から徒歩5分くらいの路地裏にひっそりある。',
-        imageURL: 'https://cloud.githubusercontent.com/assets/2181352/26483007/a62eb61a-4225-11e7-8e8c-5db98f35744f.jpg',
+        imageURL: 'https://sakkuru.github.io/simple-bot-nodejs/images/yaki.jpg',
         button: '予約する',
         url: 'http://example.com/'
+    },
+    "画像認識": {
+        value: 'imageRecognition'
+    },
+    "その他": {
+        value: 'others'
     }
 };
 
-bot.dialog('/firstQuestion', [
+// default first dialog
+bot.dialog('/', [
     session => {
+        session.beginDialog('Greeting');
+    }
+]);
+
+bot.dialog('Greeting', [
+    session => {
+        session.send("こんにちは。\n\nボットが自動でお答えします。");
+        session.beginDialog('FirstQuestion');
+    }
+]);
+
+bot.dialog('FirstQuestion', [
+    (session, results, next) => {
         builder.Prompts.choice(session, "何をお探しですか。", firstChoices, { listStyle: 3 });
     },
     (session, results, next) => {
-        session.send('%sですね。', results.response.entity);
-        session.send('こちらはいかがでしょうか。');
-
         const choice = firstChoices[results.response.entity];
+
+        if (choice.value === 'others') {
+            session.beginDialog('GetFreeText');
+            return;
+        } else if (choice.value === 'imageRecognition') {
+            session.beginDialog('ImageRecognition');
+            return;
+        }
+
+        session.send('%sですね。\n\nこちらはいかがでしょうか。', results.response.entity);
 
         const card = new builder.HeroCard(session)
             .title(choice.title)
@@ -81,11 +127,44 @@ bot.dialog('/firstQuestion', [
 
         const msg = new builder.Message(session).addAttachment(card);
         session.send(msg);
-        session.beginDialog('/endDialog');
+        session.beginDialog('EndDialog');
     }
 ]);
 
-bot.dialog('/endDialog', [
+bot.dialog('GetFreeText', [
+    session => {
+        builder.Prompts.text(session, "自由に入力してください。");
+    },
+    (session, results) => {
+        console.log(results.response);
+        const res = util.getLuis(results.response).then(res => {
+            console.log('res', res);
+            // process LUIS response
+        });
+    }
+]);
+
+bot.dialog('ImageRecognition', [
+    session => {
+        builder.Prompts.attachment(session, '画像をアップロードしてください。（複数可）');
+    },
+    (session, results) => {
+        const promises = [];
+        results.response.forEach(content => {
+            if (content.contentType.match('image')) {
+                promises.push(util.getCognitiveResults(content.contentUrl));
+            }
+        });
+
+        Promise.all(promises).then(imageDescs => {
+            imageDescs.forEach(res => {
+                session.send(res.description.captions[0].text);
+            });
+        });
+    }
+]);
+
+bot.dialog('EndDialog', [
     session => {
         builder.Prompts.confirm(session, "疑問は解決しましたか？", { listStyle: 3 });
     },
@@ -94,17 +173,31 @@ bot.dialog('/endDialog', [
         if (results.response) {
             session.send('ありがとうございました。');
             session.endDialog();
-
         } else {
             session.send('お役に立てず申し訳ありません。');
-            session.beginDialog('/firstQuestion');
+            session.beginDialog('FirstQuestion');
         }
     }
 ]);
 
-bot.dialog('/begin', [
-    session => {
-        session.send("ボットが自動でお答えします。");
-        session.beginDialog('/firstQuestion');
+// help command
+bot.customAction({
+    matches: /^help$/i,
+    onSelectAction: (session, args, next) => {
+        const helpTexts = [
+            'help: このヘルプメニュー。前のdialogは続いています。',
+            'exit: dialogを終わらせ、 最初に戻ります。',
+        ]
+        session.send(helpTexts.join('\n\n'));
     }
-]);
+});
+
+// exit command
+bot.dialog('Exit', [
+    session => {
+        session.endDialog("スタックを消去して終了します。");
+        session.beginDialog('FirstQuestion');
+    },
+]).triggerAction({
+    matches: /^exit$/i
+});
