@@ -4,6 +4,10 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const app = express();
 
+const appInsights = require("applicationinsights");
+appInsights.setup(process.env.APP_INSIGHTS_KEY);
+appInsights.start();
+
 const Util = require('./Util');
 const util = new Util();
 
