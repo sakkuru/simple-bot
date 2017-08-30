@@ -1,12 +1,20 @@
 const builder = require('botbuilder');
 const express = require('express');
-const request = require('request');
 const bodyParser = require('body-parser');
 const app = express();
 
-const appInsights = require("applicationinsights");
-appInsights.setup(process.env.APP_INSIGHTS_KEY);
-appInsights.start();
+let insightsClient;
+if (process.env.APP_INSIGHTS_KEY) {
+    const appInsights = require("applicationinsights");
+    appInsights.setup(process.env.APP_INSIGHTS_KEY)
+        .setAutoDependencyCorrelation(false)
+        .setAutoCollectRequests(true)
+        .setAutoCollectPerformance(true)
+        .setAutoCollectExceptions(true)
+        .setAutoCollectDependencies(true)
+        .start();;
+    insightsClient = appInsights.getClient();
+}
 
 const Util = require('./Util');
 const util = new Util();
@@ -32,9 +40,17 @@ const connector = new builder.ChatConnector({
 const bot = new builder.UniversalBot(connector);
 
 // for getting all user input
-app.all('/api/messages', function(req, res, next) {
+app.all('/api/messages', (req, res, next) => {
     if (req.body.type === 'message' && req.body.text) {
         util.storeUserInput(req.body);
+        console.log('message', req.body);
+
+        if (req.body.channelData) {
+            console.log('channelData', req.body.channelData);
+            if (insightsClient) {
+                insightsClient.trackEvent('channelData', req.body.channelData);
+            }
+        }
     }
     next();
 });
@@ -90,13 +106,14 @@ const firstChoices = {
 // default first dialog
 bot.dialog('/', [
     session => {
+        session.send("こんにちは。");
         session.beginDialog('Greeting');
     }
 ]);
 
 bot.dialog('Greeting', [
     session => {
-        session.send("こんにちは。\n\nボットが自動でお答えします。");
+        session.send("ボットが自動でお答えします。");
         session.beginDialog('FirstQuestion');
     }
 ]);
@@ -107,6 +124,7 @@ bot.dialog('FirstQuestion', [
     },
     (session, results, next) => {
         const choice = firstChoices[results.response.entity];
+        console.log(results.response);
 
         if (choice.value === 'others') {
             session.beginDialog('GetFreeText');

@@ -3,6 +3,8 @@ const request = require('request');
 class Util {
     storeUserInput(text) {
         const apiEndpoint = process.env.LOG_ENDPOINT;
+        if (!apiEndpoint) return;
+
         const body = {
             input: text,
         }
