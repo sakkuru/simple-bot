@@ -90,13 +90,14 @@ const firstChoices = {
 // default first dialog
 bot.dialog('/', [
     session => {
+        session.send("こんにちは。");
         session.beginDialog('Greeting');
     }
 ]);
 
 bot.dialog('Greeting', [
     session => {
-        session.send("こんにちは。\n\nボットが自動でお答えします。");
+        session.send("ボットが自動でお答えします。");
         session.beginDialog('FirstQuestion');
     }
 ]);
