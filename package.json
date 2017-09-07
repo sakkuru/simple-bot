@@ -15,7 +15,7 @@
   "dependencies": {
     "applicationinsights": "^0.21.0",
     "body-parser": "^1.17.2",
-    "botbuilder": "^3.7.0",
+    "botbuilder": "^3.9.1",
     "express": "^4.15.3"
   }
 }

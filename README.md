@@ -2,8 +2,7 @@
 
 ![](https://cloud.githubusercontent.com/assets/2181352/26581348/066a085a-4577-11e7-8aa9-0b5e527ca56f.png)
 
-* [Web Chat(デザイン固定のiframe)のデモ](https://sakkuru.github.io/simple-bot-nodejs/)
-* [Directline API v3を使用したチャットのデモ](https://sakkuru.github.io/simple-bot-nodejs/directline.html)
+* [Directline API v3を使用したチャットのデモ](https://sakkuru.github.io/simple-bot-nodejs/)
 
 ---
 
