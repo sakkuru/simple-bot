@@ -6,97 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
-    <script src='./chat.js'></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/united/bootstrap.min.css" />
-
-
-    <title>Chat bot demo</title>
-
-    <style>
-        #status {
-            position: absolute;
-            right: 0;
-            width: 30%;
-            border: 1px solid black;
-            padding: 10px;
-        }
-        
-        #messages {
-            width: 70%;
-        }
-    </style>
+    <async script src='./js/main.js'>
+        </script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/united/bootstrap.min.css" />
+        <title>Chat bot directline demo</title>
+        <style>
+            #status {
+                position: absolute;
+                right: 0;
+                width: 30%;
+                border: 1px solid black;
+                padding: 10px;
+            }
+            
+            #messages {
+                width: 70%;
+            }
+        </style>
 </head>
 
 <body>
     <div id='status'></div>
     <div id='messages'></div>
 
-    <script>
-        const $status = $('#status');
-        const $messages = $('#messages');
+    <script src="js/main.js"></script>
 
-        let chat;
-
-        const showMessage = activities => {
-            activities.forEach(activity => {
-                if (activity.from.id === 'user') return;
-                if (activity.text) {
-                    appendMessage(activity.text);
-                }
-                if (activity.attachments) {
-                    activity.attachments.forEach(attachment => {
-                        if (attachment.content && attachment.content.buttons) {
-                            appendButtons(attachment.content.buttons);
-                        }
-                    })
-                }
-            });
-        }
-
-        const appendMessage = text => {
-            $messages.append('<p>' + text);
-        }
-
-        const appendButtons = buttons => {
-            buttons.forEach(button => {
-                $button = $('<button class="btn btn-default">').text(button.value).val(button.value);
-                $messages.append($button);
-            });
-        }
-
-        $(() => {
-            $status.append('<p>' + 'getting token...');
-            chat = new Chat();
-            chat.onopen = () => {
-                $status.append('<p>' + 'connected.');
-                $status.append('<p>' + 'getting message...');
-            };
-
-            let lastBotMessage;
-            chat.onmessage = messages => {
-                showMessage(messages);
-                $status.append('<p>' + 'message received.');
-                lastBotMessage = messages[0];
-            }
-
-            chat.onerror = error => {
-                $status.append('<p>' + 'WebSocket Error: ' + error);
-            };
-
-            $(document).on("click", "button", e => {
-                $messages.append('<p>' + e.target.value);
-                const message = {
-                    replyToId: lastBotMessage.id,
-                    id: lastBotMessage.id + 1,
-                    text: e.target.value,
-                    conversation: {
-                        id: lastBotMessage.conversation.id,
-                    }
-                }
-                chat.sendMessage(message);
-            });
-        });
-    </script>
 </body>
 
 </html>
