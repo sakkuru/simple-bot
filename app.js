@@ -12,7 +12,7 @@ if (process.env.APP_INSIGHTS_KEY) {
         .setAutoCollectPerformance(true)
         .setAutoCollectExceptions(true)
         .setAutoCollectDependencies(true)
-        .start();;
+        .start();
     insightsClient = appInsights.getClient();
 }
 
@@ -222,4 +222,14 @@ bot.dialog('Exit', [
     },
 ]).triggerAction({
     matches: /^exit$/i
+});
+
+// exit command
+bot.dialog('Any', [
+    session => {
+        session.endDialog("自由入力を受け付けました。");
+        session.beginDialog('FirstQuestion');
+    },
+]).triggerAction({
+    matches: /^.*$/i
 });
