@@ -224,7 +224,7 @@ bot.dialog('Exit', [
     matches: /^exit$/i
 });
 
-// exit command
+// Always accepts free text input
 bot.dialog('Any', [
     session => {
         session.endDialog("自由入力を受け付けました。");
