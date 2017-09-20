@@ -3,18 +3,18 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-let insightsClient;
-if (process.env.APP_INSIGHTS_KEY) {
-    const appInsights = require("applicationinsights");
-    appInsights.setup(process.env.APP_INSIGHTS_KEY)
-        .setAutoDependencyCorrelation(false)
-        .setAutoCollectRequests(true)
-        .setAutoCollectPerformance(true)
-        .setAutoCollectExceptions(true)
-        .setAutoCollectDependencies(true)
-        .start();
-    insightsClient = appInsights.getClient();
-}
+// let insightsClient;
+// if (process.env.APP_INSIGHTS_KEY) {
+//     const appInsights = require("applicationinsights");
+//     appInsights.setup(process.env.APP_INSIGHTS_KEY)
+//         .setAutoDependencyCorrelation(false)
+//         .setAutoCollectRequests(true)
+//         .setAutoCollectPerformance(true)
+//         .setAutoCollectExceptions(true)
+//         .setAutoCollectDependencies(true)
+//         .start();
+//     insightsClient = appInsights.getClient();
+// }
 
 const Util = require('./Util');
 const util = new Util();
@@ -42,15 +42,15 @@ const bot = new builder.UniversalBot(connector);
 // for getting all user input
 app.all('/api/messages', (req, res, next) => {
     if (req.body.type === 'message' && req.body.text) {
-        util.storeUserInput(req.body);
+        // util.storeUserInput(req.body);
         console.log('message', req.body);
 
-        if (req.body.channelData) {
-            console.log('channelData', req.body.channelData);
-            if (insightsClient) {
-                insightsClient.trackEvent('channelData', req.body.channelData);
-            }
-        }
+        // if (req.body.channelData) {
+        //     console.log('channelData', req.body.channelData);
+        //     if (insightsClient) {
+        //         insightsClient.trackEvent('channelData', req.body.channelData);
+        //     }
+        // }
     }
     next();
 });
@@ -77,7 +77,7 @@ bot.on('conversationUpdate', message => {
 });
 
 const firstChoices = {
-    "いいランチのお店": {
+    "Recommend for lunch": {
         value: 'lunch',
         title: '行列のできるタイ料理屋',
         subtitle: 'ランチセットがコスパ良し',
@@ -86,7 +86,7 @@ const firstChoices = {
         button: '予約する',
         url: 'http://example.com/'
     },
-    "飲めるところ": {
+    "Recommend for drinking": {
         value: 'drink',
         title: '落ち着いた雰囲気の個室居酒屋',
         subtitle: 'なんでも美味しいが、特に焼き鳥がおすすめ',
@@ -95,10 +95,10 @@ const firstChoices = {
         button: '予約する',
         url: 'http://example.com/'
     },
-    "画像認識": {
+    "Image Recognition": {
         value: 'imageRecognition'
     },
-    "その他": {
+    "Others": {
         value: 'others'
     }
 };
@@ -106,21 +106,21 @@ const firstChoices = {
 // default first dialog
 bot.dialog('/', [
     session => {
-        session.send("こんにちは。");
+        session.send("Hello!", { token: 'hoge' });
         session.beginDialog('Greeting');
     }
 ]);
 
 bot.dialog('Greeting', [
     session => {
-        session.send("ボットが自動でお答えします。");
+        session.send("This is Saki's Bot.", { token: 'hoge', fuga: 'aaaaaaa' });
         session.beginDialog('FirstQuestion');
     }
 ]);
 
 bot.dialog('FirstQuestion', [
     (session, results, next) => {
-        builder.Prompts.choice(session, "何をお探しですか。", firstChoices, { listStyle: 3 });
+        builder.Prompts.choice(session, "What can I do for you?", firstChoices, { listStyle: 3 });
     },
     (session, results, next) => {
         const choice = firstChoices[results.response.entity];
@@ -134,7 +134,7 @@ bot.dialog('FirstQuestion', [
             return;
         }
 
-        session.send('%sですね。\n\nこちらはいかがでしょうか。', results.response.entity);
+        session.send('How about this?');
 
         const card = new builder.HeroCard(session)
             .title(choice.title)
@@ -155,7 +155,7 @@ bot.dialog('FirstQuestion', [
 
 bot.dialog('GetFreeText', [
     session => {
-        builder.Prompts.text(session, "自由に入力してください。");
+        builder.Prompts.text(session, "Input freely.");
     },
     (session, results) => {
         console.log(results.response);
@@ -168,7 +168,7 @@ bot.dialog('GetFreeText', [
 
 bot.dialog('ImageRecognition', [
     session => {
-        builder.Prompts.attachment(session, '画像をアップロードしてください。（複数可）');
+        builder.Prompts.attachment(session, 'Please upload photos.');
     },
     (session, results) => {
         const promises = [];
@@ -188,15 +188,15 @@ bot.dialog('ImageRecognition', [
 
 bot.dialog('EndDialog', [
     session => {
-        builder.Prompts.confirm(session, "疑問は解決しましたか？", { listStyle: 3 });
+        builder.Prompts.confirm(session, "Have you solved your problem?", { listStyle: 3 });
     },
     (session, results) => {
         console.log(results.response);
         if (results.response) {
-            session.send('ありがとうございました。');
+            session.send('Thank you!');
             session.endDialog();
         } else {
-            session.send('お役に立てず申し訳ありません。');
+            session.send('I\'m sorry for the inconvenience.');
             session.beginDialog('FirstQuestion');
         }
     }
