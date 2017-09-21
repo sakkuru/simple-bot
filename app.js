@@ -3,19 +3,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-// let insightsClient;
-// if (process.env.APP_INSIGHTS_KEY) {
-//     const appInsights = require("applicationinsights");
-//     appInsights.setup(process.env.APP_INSIGHTS_KEY)
-//         .setAutoDependencyCorrelation(false)
-//         .setAutoCollectRequests(true)
-//         .setAutoCollectPerformance(true)
-//         .setAutoCollectExceptions(true)
-//         .setAutoCollectDependencies(true)
-//         .start();
-//     insightsClient = appInsights.getClient();
-// }
-
 const Util = require('./Util');
 const util = new Util();
 
@@ -45,12 +32,6 @@ app.all('/api/messages', (req, res, next) => {
         // util.storeUserInput(req.body);
         console.log('message', req.body);
 
-        // if (req.body.channelData) {
-        //     console.log('channelData', req.body.channelData);
-        //     if (insightsClient) {
-        //         insightsClient.trackEvent('channelData', req.body.channelData);
-        //     }
-        // }
     }
     next();
 });
@@ -106,14 +87,14 @@ const firstChoices = {
 // default first dialog
 bot.dialog('/', [
     session => {
-        session.send("Hello!", { token: 'hoge' });
+        session.send("Hello!");
         session.beginDialog('Greeting');
     }
 ]);
 
 bot.dialog('Greeting', [
     session => {
-        session.send("This is Saki's Bot.", { token: 'hoge', fuga: 'aaaaaaa' });
+        session.send("This is Saki's Bot.");
         session.beginDialog('FirstQuestion');
     }
 ]);
@@ -207,8 +188,8 @@ bot.customAction({
     matches: /^help$/i,
     onSelectAction: (session, args, next) => {
         const helpTexts = [
-            'help: このヘルプメニュー。前のdialogは続いています。',
-            'exit: dialogを終わらせ、 最初に戻ります。',
+            'help: This help menu. Previous dialog is still continues.',
+            'exit: End the dialog and back to beginning dialog.',
         ]
         session.send(helpTexts.join('\n\n'));
     }
@@ -217,7 +198,8 @@ bot.customAction({
 // exit command
 bot.dialog('Exit', [
     session => {
-        session.endDialog("スタックを消去して終了します。");
+        console.log(session.userData);
+        session.endDialog("End with deleting dialog stack.");
         session.beginDialog('FirstQuestion');
     },
 ]).triggerAction({
@@ -226,9 +208,10 @@ bot.dialog('Exit', [
 
 // Always accepts free text input
 bot.dialog('Any', [
-    session => {
-        session.endDialog("自由入力を受け付けました。");
-        session.beginDialog('FirstQuestion');
+    (session, results) => {
+        console.log(results.intent.matched.input);
+        session.endDialog("Your input: %s", results.intent.matched.input);
+        session.beginDialog('Greeting');
     },
 ]).triggerAction({
     matches: /^.*$/i
