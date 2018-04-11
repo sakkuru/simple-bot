@@ -120,6 +120,29 @@ bot.dialog('Exit', [
 * app.jsの`builder.Prompts.confirm`
 * Noの場合、最初の質問(firstQuestion)へ戻っている
 
+### ボタン入力かつ自由入力の受付
+```
+bot.dialog('FirstQuestion', [
+    (session, results, next) => {
+        const card = new builder.HeroCard(session)
+            .title("Click")
+            .buttons([
+                builder.CardAction.imBack(session, "b1 selected", "b1"),
+                builder.CardAction.imBack(session, "b2 selected", "b2"),
+                builder.CardAction.imBack(session, "b3 selected", "b3")
+            ]);
+
+        const msg = new builder.Message(session).addAttachment(card);
+        session.send(msg);
+
+        builder.Prompts.text(session, "or input some text.");
+    },
+    (session, results, next) => {
+        session.send('Your input: ' + results.response);
+    }
+]);
+```
+
 ## 他のサンプルコード
 * [Payment Request APIを使うbotのサンプル](https://github.com/sakkuru/payment-with-bot)
 * [Text AnalyticsとAzure Searchを使うbotのサンプル](https://github.com/sakkuru/bot-using-azure-search)
